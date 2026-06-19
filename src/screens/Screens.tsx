@@ -11,7 +11,6 @@ import * as React from 'react';
 import HelloWorld from './HelloWorld';
 import Baohuang from './Baohuang';
 import Gouji from './Gouji';
-import BottomTabs from './BottomTabs';
 import Games from './Games';
 import Library from './Library';
 import Home from './Home';
@@ -22,9 +21,8 @@ export type RootStacksParams = {
   HelloWorld: { id: string };
   Baohuang: { id?: string; name: string };
   Gouji: { id?: string };
-  BottomTabs: undefined;
-  Games: undefined;
   Home: undefined;
+  Games: undefined;
   Webviewer: { url: string; title: string };
 };
 
@@ -46,7 +44,6 @@ export default function Stacks() {
           animationDuration: 618,
         }}
       >
-        <RootStack.Screen name="BottomTabs" component={BottomTabs} />
         <RootStack.Screen name="Home" component={Home} />
         <RootStack.Screen name="HelloWorld" component={HelloWorld} />
         <RootStack.Screen name="Baohuang" component={Baohuang} />

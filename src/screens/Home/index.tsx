@@ -1,11 +1,13 @@
+import CheckBox from '@src/components/CheckBox';
 import Flex from '@src/components/Flex';
+import MoreButton from '@src/components/MoreButton';
+import Switcher from '@src/components/Switcher';
 import { useCaches } from '@src/constants/store';
 import { dip2px, fs } from '@src/constants/u';
+import { h5 } from '@src/constants/c';
 import dayjs from 'dayjs';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback } from 'react';
 import {
-  Image,
-  ImageBackground,
   Platform,
   ScrollView,
   StatusBar,
@@ -14,11 +16,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Modalize } from 'react-native-modalize';
+import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RootStacksProp } from '../Screens';
-import { ClassItem } from '@src/constants/t';
-import { loadClassesConfig } from '@src/service';
 
 interface MyProps {
   navigation?: RootStacksProp;
@@ -28,11 +28,20 @@ const Home: React.FC<MyProps> = props => {
   const { navigation } = props;
   const {
     theme,
+    freeUsed,
+    setFreeUsed,
+    cardSound,
     defaultGame,
     setDefaultGame,
+    isKeyboardFeedback,
+    setIsKeyboardFeedback,
     games,
     pack,
+    setPack,
+    isEagle,
     setIsEagle,
+    gameArea,
+    setGameArea,
     setGames,
   } = useCaches();
 
@@ -40,14 +49,16 @@ const Home: React.FC<MyProps> = props => {
     ios: useSafeAreaInsets().top,
     android: StatusBar.currentHeight,
   });
-  const [classes, setClasses] = useState<ClassItem[]>([]);
-  const insets = useSafeAreaInsets();
 
-  useEffect(() => {
-    // if (__DEV__) {
-    //   navigation.navigate('Library');
-    // }
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      let today = dayjs().format('YYYY-MM-DD');
+      if (freeUsed.key != today) {
+        setFreeUsed({ key: today, value: 0 });
+      }
+      return () => {};
+    }, []),
+  );
 
   const supportedGames = {
     bh: {
@@ -61,18 +72,6 @@ const Home: React.FC<MyProps> = props => {
       message: '6副牌、4副牌',
     },
   };
-
-  const loadConfig = async () => {
-    let result = await loadClassesConfig();
-    if (result.status == 200) {
-      let data = result.data as ClassItem[];
-      setClasses(data);
-    }
-  };
-
-  useEffect(() => {
-    loadConfig();
-  }, []);
 
   return (
     <View style={styles.container}>
@@ -137,56 +136,146 @@ const Home: React.FC<MyProps> = props => {
         <View style={{ height: 2 }} />
         <View style={styles.card}>
           <Text style={{ color: '#333', fontSize: fs(16), fontWeight: '500' }}>
-            使用教程
+            游戏设置
           </Text>
-          {classes.map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              activeOpacity={0.8}
-              style={{ marginTop: 12 }}
-              onPress={() => {
-                navigation.navigate('Webviewer', {
-                  title: item.title,
-                  url: item.biLink,
-                });
+          <View style={{ height: 6 }} />
+          <View style={styles.settingItem}>
+            <Text style={{ fontSize: fs(14), color: '#333' }}>
+              按键反馈（震动效果）
+            </Text>
+            <Switcher
+              value={isKeyboardFeedback}
+              onValueChange={value => {
+                setIsKeyboardFeedback(value);
               }}
-            >
-              <Flex horizontal>
-                <Image
-                  source={{ uri: item.thumbnail }}
-                  style={{
-                    width: '100%',
-                    height: dip2px(96),
-                    borderRadius: 5,
-                  }}
-                  resizeMode="cover"
-                />
-                <View style={styles.backCover}>
-                  <Text
-                    style={{
-                      fontSize: fs(16),
-                      color: '#fff',
-                      fontWeight: '500',
-                    }}
-                  >
-                    {item.title}
-                  </Text>
-                  <View style={{ height: 10 }} />
-                  <Text
-                    style={{
-                      fontSize: fs(14),
-                      color: '#fff',
-                      lineHeight: fs(20),
-                      textAlign: 'center',
-                    }}
-                    numberOfLines={3}
-                  >
-                    {item.content}
-                  </Text>
-                </View>
-              </Flex>
-            </TouchableOpacity>
-          ))}
+              disabled={Platform.OS != 'android'}
+              trackColor={{ false: '#ccc', true: theme }}
+              thumbColor={cardSound ? '#fff' : '#f4f3f4'}
+            />
+          </View>
+        </View>
+        <View style={{ height: 2 }} />
+        <View style={styles.card}>
+          <Text style={{ fontSize: fs(16), color: '#333', fontWeight: '500' }}>
+            够级
+          </Text>
+          <View style={{ height: 10 }} />
+          <View style={styles.settingItem}>
+            <Text style={{ fontSize: fs(14), color: '#333' }}>是否带鹰🦅</Text>
+            <Switcher
+              disabled={pack == 4}
+              value={isEagle}
+              onValueChange={value => {
+                setIsEagle(value);
+              }}
+              trackColor={{ false: '#ccc', true: theme }}
+              thumbColor={isEagle ? '#fff' : '#f4f3f4'}
+            />
+          </View>
+          <View style={{ height: 5 }} />
+          <View style={styles.settingItem}>
+            <Text style={{ fontSize: fs(14), color: '#333' }}>几副牌</Text>
+            <View style={{ height: 10 }} />
+            <Flex horizontal style={{ gap: 12 }}>
+              <CheckBox
+                activeColor={theme}
+                checked={pack == 4}
+                label={'4副牌'}
+                onPress={() => {
+                  setPack(4);
+                }}
+              />
+              <CheckBox
+                activeColor={theme}
+                checked={pack == 6}
+                label={'6副牌'}
+                onPress={() => {
+                  setPack(6);
+                }}
+              />
+            </Flex>
+          </View>
+        </View>
+        <View style={{ height: 1 }} />
+        <View style={styles.card}>
+          <Text style={{ fontSize: fs(16), color: '#333', fontWeight: '500' }}>
+            保皇
+          </Text>
+          <View style={{ height: 10 }} />
+          <View style={styles.settingItem}>
+            <Text style={{ fontSize: fs(14), color: '#333' }}>区域玩法</Text>
+            <Flex horizontal style={{ gap: 12 }}>
+              <CheckBox
+                activeColor={theme}
+                checked={gameArea == 'wf'}
+                label={'潍坊保皇'}
+                onPress={() => {
+                  setGameArea('wf');
+                }}
+              />
+              <CheckBox
+                activeColor={theme}
+                checked={gameArea == 'fk'}
+                label={'疯狂保皇'}
+                onPress={() => {
+                  setGameArea('fk');
+                }}
+              />
+            </Flex>
+          </View>
+        </View>
+        <View style={{ height: 2 }} />
+        <View style={styles.card}>
+          <TouchableOpacity activeOpacity={0.8} onPress={() => {}}>
+            <Flex horizontal justify="space-between">
+              <Text style={{ fontSize: fs(16), color: '#333' }}>用户政策</Text>
+              <MoreButton
+                onPress={() => {
+                  navigation.navigate('Webviewer', {
+                    url: h5(
+                      `testMarkdown?src=./docs/duole/terms-of-service.md`,
+                    ),
+                    title: '用户协议',
+                  });
+                }}
+                label=""
+              />
+            </Flex>
+          </TouchableOpacity>
+        </View>
+        <View style={{ height: 1 }} />
+        <View style={styles.card}>
+          <TouchableOpacity activeOpacity={0.8} onPress={() => {}}>
+            <Flex horizontal justify="space-between">
+              <Text style={{ fontSize: fs(16), color: '#333' }}>隐私协议</Text>
+              <MoreButton
+                onPress={() => {
+                  navigation.navigate('Webviewer', {
+                    url: h5(`testMarkdown?src=./docs/duole/privacy-policy.md`),
+                    title: '隐私政策',
+                  });
+                }}
+                label=""
+              />
+            </Flex>
+          </TouchableOpacity>
+        </View>
+        <View style={{ height: 1 }} />
+        <View style={styles.card}>
+          <TouchableOpacity activeOpacity={0.8} onPress={() => {}}>
+            <Flex horizontal justify="space-between">
+              <Text style={{ fontSize: fs(16), color: '#333' }}>关于我们</Text>
+              <MoreButton
+                onPress={() => {
+                  navigation.navigate('Webviewer', {
+                    url: 'https://www.xiaopacai.cn',
+                    title: '关于我们',
+                  });
+                }}
+                label=""
+              />
+            </Flex>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
@@ -222,18 +311,6 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     paddingHorizontal: 12,
     height: dip2px(32),
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  backCover: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.38)',
-    paddingHorizontal: '10%',
-    borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
   },
