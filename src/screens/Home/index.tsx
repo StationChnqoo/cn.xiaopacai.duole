@@ -2,7 +2,7 @@ import CheckBox from '@src/components/CheckBox';
 import Flex from '@src/components/Flex';
 import Switcher from '@src/components/Switcher';
 import { useCaches } from '@src/constants/store';
-import { dip2px, fs } from '@src/constants/u';
+import { fs } from '@src/constants/u';
 import dayjs from 'dayjs';
 import React, { useCallback } from 'react';
 import {
@@ -33,14 +33,12 @@ const Home: React.FC<MyProps> = props => {
     setDefaultGame,
     isKeyboardFeedback,
     setIsKeyboardFeedback,
-    games,
     pack,
     setPack,
     isEagle,
     setIsEagle,
     gameArea,
     setGameArea,
-    setGames,
   } = useCaches();
 
   const height = Platform.select({
@@ -89,7 +87,7 @@ const Home: React.FC<MyProps> = props => {
               return (
                 <TouchableOpacity
                   key={index}
-                  activeOpacity={0.7}
+                  activeOpacity={0.9}
                   style={[
                     styles.gameCard,
                     isActive && { borderColor: theme, backgroundColor: theme + '10' },
@@ -109,16 +107,6 @@ const Home: React.FC<MyProps> = props => {
               );
             })}
           </Flex>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            style={[styles.startButton, { backgroundColor: theme }]}
-            onPress={() => {
-              const pages: Record<string, string> = { bh: 'Baohuang', gj: 'Gouji' };
-              navigation.navigate(pages[defaultGame] as never);
-            }}
-          >
-            <Text style={styles.startButtonText}>开始数牌</Text>
-          </TouchableOpacity>
         </View>
 
         {/* 游戏设置 */}
@@ -167,6 +155,17 @@ const Home: React.FC<MyProps> = props => {
               <CheckBox activeColor={theme} checked={gameArea == 'fk'} label="疯狂保皇" onPress={() => setGameArea('fk')} />
             </Flex>
           </View>
+
+          <TouchableOpacity
+            activeOpacity={0.8}
+            style={[styles.startButton, { backgroundColor: theme }]}
+            onPress={() => {
+              const pages: Record<string, string> = { bh: 'Baohuang', gj: 'Gouji' };
+              navigation.navigate(pages[defaultGame] as never);
+            }}
+          >
+            <Text style={styles.startButtonText}>开始数牌</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.bottomSpacer} />
@@ -262,7 +261,7 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
       },
       android: {
-        elevation: 3,
+        elevation: 1,
       },
     }),
   },

@@ -73,8 +73,7 @@ const Switcher: React.FC<SwitcherProps> = ({
             width: TRACK_WIDTH,
             height: TRACK_HEIGHT,
             borderRadius: TRACK_HEIGHT / 2,
-            backgroundColor: currentTrackColor,
-            opacity: disabled ? 0.5 : 1,
+            backgroundColor: disabled ? '#e2e2e2' : currentTrackColor,
           },
         ]}
       >
@@ -86,7 +85,7 @@ const Switcher: React.FC<SwitcherProps> = ({
               height: THUMB_SIZE,
               borderRadius: THUMB_SIZE / 2,
               top: THUMB_TOP,
-              backgroundColor: disabled ? '#f0f0f0' : thumbColor,
+              backgroundColor: disabled ? '#fafafa' : thumbColor,
               transform: [{ translateX }],
             },
           ]}
