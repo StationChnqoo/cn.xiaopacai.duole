@@ -1,36 +1,53 @@
-import React from 'react';
-import {StyleSheet, Text, TouchableOpacity, View, ViewStyle} from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import React, { useEffect, useRef } from 'react';
+import {
+  Animated,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from 'react-native';
 
 export interface SwitcherProps {
   value: boolean;
   onValueChange: (value: boolean) => void;
   disabled?: boolean;
-  trackColor?: {false: string; true: string};
+  trackColor?: { false: string; true: string };
   thumbColor?: string;
-  size?: 'small' | 'medium' | 'large';
   style?: ViewStyle;
   testID?: string;
 }
+
+const TRACK_WIDTH = 50;
+const TRACK_HEIGHT = 28;
+const THUMB_SIZE = 24;
+const PADDING = 2;
+const THUMB_END = TRACK_WIDTH - THUMB_SIZE - PADDING * 2;
+const THUMB_TOP = (TRACK_HEIGHT - THUMB_SIZE) / 2;
 
 const Switcher: React.FC<SwitcherProps> = ({
   value,
   onValueChange,
   disabled = false,
-  trackColor = {false: '#e9e9ea', true: '#34c759'},
+  trackColor = { false: '#e5e5ea', true: '#34c759' },
   thumbColor = '#ffffff',
-  size = 'medium',
   style,
   testID,
 }) => {
-  const sizes = {
-    small: {width: 41, height: 24, thumb: 20, trackBorderRadius: 12},
-    medium: {width: 51, height: 31, thumb: 27, trackBorderRadius: 15.5},
-    large: {width: 56, height: 34, thumb: 30, trackBorderRadius: 17},
-  };
+  const animValue = useRef(new Animated.Value(value ? 1 : 0)).current;
 
-  const currentSize = sizes[size];
-  const thumbPosition = value ? currentSize.width - currentSize.thumb - 2 : 2;
+  useEffect(() => {
+    Animated.timing(animValue, {
+      toValue: value ? 1 : 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+  }, [value]);
+
+  const translateX = animValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [PADDING, THUMB_END + PADDING],
+  });
 
   const handlePress = () => {
     if (!disabled) {
@@ -38,49 +55,42 @@ const Switcher: React.FC<SwitcherProps> = ({
     }
   };
 
+  const currentTrackColor = disabled
+    ? '#e5e5ea'
+    : trackColor[value ? 'true' : 'false'];
+
   return (
     <TouchableOpacity
       testID={testID}
-      style={[styles.container, style]}
+      activeOpacity={disabled ? 1 : 0.8}
       onPress={handlePress}
-      activeOpacity={0.8}
-      disabled={disabled}>
+      style={[styles.container, style]}
+    >
       <View
         style={[
           styles.track,
           {
-            width: currentSize.width,
-            height: currentSize.height,
-            backgroundColor: disabled ? '#e9e9ea' : trackColor[value ? true : false],
-            borderRadius: currentSize.trackBorderRadius,
+            width: TRACK_WIDTH,
+            height: TRACK_HEIGHT,
+            borderRadius: TRACK_HEIGHT / 2,
+            backgroundColor: currentTrackColor,
+            opacity: disabled ? 0.5 : 1,
           },
-        ]}>
-        <View
+        ]}
+      >
+        <Animated.View
           style={[
             styles.thumb,
             {
-              width: currentSize.thumb,
-              height: currentSize.thumb,
-              borderRadius: currentSize.thumb / 2,
-              backgroundColor: thumbColor,
-              transform: [{translateX: thumbPosition}],
+              width: THUMB_SIZE,
+              height: THUMB_SIZE,
+              borderRadius: THUMB_SIZE / 2,
+              top: THUMB_TOP,
+              backgroundColor: disabled ? '#f0f0f0' : thumbColor,
+              transform: [{ translateX }],
             },
           ]}
         />
-        {value && (
-          <View
-            style={[
-              styles.thumb,
-              {
-                width: currentSize.thumb,
-                height: currentSize.thumb,
-                borderRadius: currentSize.thumb / 2,
-                backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                transform: [{translateX: thumbPosition}],
-              },
-            ]}
-          />
-        )}
       </View>
     </TouchableOpacity>
   );
@@ -92,17 +102,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   track: {
-    position: 'relative',
-    overflow: 'hidden',
+    justifyContent: 'center',
   },
   thumb: {
     position: 'absolute',
-    top: 2,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 1},
-    shadowOpacity: 0.2,
-    shadowRadius: 1.5,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.15,
+        shadowRadius: 2,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
   },
 });
 
