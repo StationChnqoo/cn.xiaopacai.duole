@@ -30,7 +30,7 @@ const ToolBar: React.FC<MyProps> = props => {
     <View
       style={{
         backgroundColor: '#fff',
-        borderBottomColor: '#ccc',
+        borderBottomColor: '#eee',
         borderBottomWidth: 1,
       }}
     >

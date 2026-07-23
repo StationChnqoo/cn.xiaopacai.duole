@@ -41,6 +41,8 @@ interface States {
   setTryUseCount: (tryUseCount: number) => void;
   currentKami: string;
   setCurrentKami: (currentKami: string) => void;
+  isTTS: boolean;
+  setIsTTS: (isTTS: boolean) => void;
 }
 
 const initialState = {
@@ -58,6 +60,7 @@ const initialState = {
   isApplePassed: false,
   tryUseCount: 5,
   currentKami: '',
+  isTTS: false,
 };
 
 const useCaches = create<States>()(
@@ -80,6 +83,7 @@ const useCaches = create<States>()(
         setIsApplePassed: isApplePassed => set({ isApplePassed }),
         setTryUseCount: tryUseCount => set({ tryUseCount }),
         setCurrentKami: currentKami => set({ currentKami }),
+        setIsTTS: isTTS => set({ isTTS }),
       }),
       {
         storage: createJSONStorage(() => mmkvStorage),
@@ -99,6 +103,7 @@ const useCaches = create<States>()(
           gameArea: state.gameArea,
           tryUseCount: state.tryUseCount,
           currentKami: state.currentKami,
+          isTTS: state.isTTS,
         }),
       },
     ),

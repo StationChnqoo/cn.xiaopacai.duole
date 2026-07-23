@@ -1,5 +1,5 @@
 import { useCaches } from '@src/constants/store';
-import { vibrate } from '@src/constants/u';
+import { speak, vibrate } from '@src/constants/u';
 import React from 'react';
 import {
   Alert,
@@ -18,7 +18,7 @@ interface MyProps {
 
 const SoftKeyboard: React.FC<MyProps> = props => {
   const { onKeyBoardPress, onDeletePress, onClearPress } = props;
-  const { isKeyboardFeedback } = useCaches();
+  const { isKeyboardFeedback, isTTS } = useCaches();
 
   const nums = '789456123'.split('').map((it, i) => ({
     label: it,
@@ -32,7 +32,7 @@ const SoftKeyboard: React.FC<MyProps> = props => {
     .concat([
       { label: '鹰', value: 'Y' },
       { label: '小王', value: 'X' },
-      { label: '大王', value: 'D' },
+      { label: '大王', value: 'W' },
     ]);
   const actions = [
     { label: 'D.点', value: 'D' },
@@ -53,6 +53,7 @@ const SoftKeyboard: React.FC<MyProps> = props => {
               onPress={() => {
                 onKeyBoardPress?.(item.value);
                 isKeyboardFeedback && vibrate();
+                isTTS && speak(item.label);
               }}
               key={index}
               style={[styles.button]}
@@ -69,6 +70,7 @@ const SoftKeyboard: React.FC<MyProps> = props => {
               onPress={() => {
                 onKeyBoardPress?.(item.value);
                 isKeyboardFeedback && vibrate();
+                isTTS && speak(item.value);
               }}
               key={index}
               style={[styles.button]}
@@ -92,6 +94,7 @@ const SoftKeyboard: React.FC<MyProps> = props => {
               onPress={() => {
                 onKeyBoardPress?.(item.value);
                 isKeyboardFeedback && vibrate();
+                isTTS && speak(item.value);
               }}
               key={index}
               style={styles.button}

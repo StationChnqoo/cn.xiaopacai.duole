@@ -39,6 +39,8 @@ const Home: React.FC<MyProps> = props => {
     setIsEagle,
     gameArea,
     setGameArea,
+    isTTS,
+    setIsTTS,
   } = useCaches();
 
   const height = Platform.select({
@@ -124,6 +126,16 @@ const Home: React.FC<MyProps> = props => {
             />
           </View>
 
+          <View style={styles.settingRow}>
+            <Text style={styles.settingLabel}>语音播报</Text>
+            <Switcher
+              value={isTTS}
+              onValueChange={setIsTTS}
+              trackColor={{ false: '#ccc', true: theme }}
+              thumbColor={isTTS ? '#fff' : '#f4f3f4'}
+            />
+          </View>
+
           <View style={styles.divider} />
 
           <Text style={styles.subTitle}>够级</Text>
@@ -192,17 +204,8 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#fff',
     borderRadius: 12,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 1,
-      },
-    }),
+    borderWidth: 1,
+    borderColor: '#eee',
   },
   cardTitle: {
     fontSize: fs(16),
